@@ -1,7 +1,9 @@
 import pdb
 from flask import jsonify, request
 from flask.views import MethodView
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource
+
+from .auth.helpers import admin_required, get_current_user
 from .models import User, RevokedTokenModel, Company, Office
 from flask_jwt_extended import (
     create_access_token,
@@ -25,7 +27,6 @@ from .schemas import (
 
 class AdminRegistration(Resource):
     """Admin Registration API"""
-
     def post(self):
         data = request.get_json()
         errors = admin_form_schema.validate(data)
@@ -54,15 +55,10 @@ class AdminRegistration(Resource):
 
 
 class UserView(MethodView):
-
     @jwt_required()
     def get(self, user_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can view list of employees'}, 403
-        employees = User.query.filter_by(chief_id=current_user_id)
+        current_user = get_current_user()
+        employees = User.query.filter_by(chief_id=current_user.id)
         if user_id:
             employee = employees.first_or_404(user_id)
             result = single_user_form_schema.dump(employee)
@@ -71,13 +67,9 @@ class UserView(MethodView):
         return result
 
     @jwt_required()
-    def post(self, user_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        company = Company.query.filter_by(owner_id=user.id).first()
-        if user.is_staff():
-            return {'message': 'Only administrator can create employees'}, 403
+    def post(self, **kwargs):
+        current_user = get_current_user()
+        company = Company.query.filter_by(owner_id=current_user.id).first()
         data = request.get_json()
         errors = user_create_form_schema.validate(data)
         if errors:
@@ -89,7 +81,7 @@ class UserView(MethodView):
             email=email,
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
-            chief_id=current_user_id,
+            chief_id=current_user.id,
             password=User.generate_hash(data.get('password')),
             company_id=company.id if company else None
         )
@@ -107,16 +99,12 @@ class UserView(MethodView):
 
     @jwt_required()
     def put(self, user_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can create employees'}, 403
+        current_user = get_current_user()
         data = request.get_json()
         errors = single_user_update_form_schema.validate(data)
         if errors:
             return {'message': f'Incorrect data {errors}'}, 400
-        employee = User.query.filter_by(id=user_id, chief_id=current_user_id).first_or_404()
+        employee = User.query.filter_by(id=user_id, chief_id=current_user.id).first_or_404()
         if data.get('password'):
             data['password'] = User.generate_hash(data.get('password'))
         for key, value in data.items():
@@ -135,24 +123,17 @@ class UserView(MethodView):
 
     @jwt_required()
     def delete(self, user_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can delete employees'}, 403
-        employee = User.query.filter_by(id=user_id, chief_id=current_user_id).first_or_404()
+        current_user = get_current_user()
+        employee = User.query.filter_by(id=user_id, chief_id=current_user.id).first_or_404()
         try:
             employee.delete_from_db()
-            return {
-                'message': 'User has been deleted',
-            }
+            return {'message': 'User has been deleted'}
         except Exception as e:
             return {'message': f"Something went wrong {str(e)}"}, 400
 
 
 class UserLogin(Resource):
     """User login API"""
-
     def post(self):
         data = request.get_json()
         errors = user_login_form_schema.validate(data)
@@ -177,16 +158,15 @@ class UserLogin(Resource):
 
 
 class UserLogoutAccess(Resource):
-
     @jwt_required
     def post(self):
         jti = get_jwt()['jti']
         try:
             revoked_token = RevokedTokenModel(jti=jti)
             revoked_token.add()
-            return {'message': 'Acess token has been revoked'}
-        except:
-            return {'message': "Something went wrong"}, 400
+            return {'message': 'Access token has been revoked'}
+        except Exception as e:
+            return {'message': f"Something went wrong {str(e)}"}, 400
 
 
 class UserLogoutRefresh(Resource):
@@ -200,8 +180,8 @@ class UserLogoutRefresh(Resource):
             revoked_token.add()
             pdb.set_trace()
             return {'message': 'Refresh token has been revoked'}
-        except:
-            return {'message': 'Something went wrong'}, 400
+        except Exception as e:
+            return {'message': f"Something went wrong {str(e)}"}, 400
 
 
 class TokenRefresh(Resource):
@@ -220,30 +200,24 @@ class CompanyView(MethodView):
 
     @jwt_required()
     def get(self, company_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if not user.is_staff():
+        current_user = get_current_user()
+        if not current_user.is_staff():
             if company_id:
-                company = Company.query.filter_by(id=company_id, owner_id=user.id).first_or_404()
+                company = Company.query.filter_by(id=company_id, owner_id=current_user.id).first_or_404()
                 result = company_form_schema.dump(company)
             else:
-                company = Company.query.filter_by(owner_id=user.id).all()
+                company = Company.query.filter_by(owner_id=current_user.id).all()
                 result = jsonify({'companies': company_list_form_schema.dump(company)})
-        elif user.chief_id:
-            company = user.company
+        elif current_user.chief_id:
+            company = current_user.company
             result = company_form_schema.dump(company)
         else:
-            result = {'message': f'User {user} is not a member of any company'}
+            result = {'message': f'User {current_user} is not a member of any company'}
         return result
 
-    @jwt_required()
+    @admin_required()
     def post(self):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can create company'}, 403
+        current_user = get_current_user()
         data = request.get_json()
         errors = company_form_schema.validate(data)
         if errors:
@@ -252,34 +226,26 @@ class CompanyView(MethodView):
         address = data.get('address')
         if Company.find_by_name(name):
             return {'message': f'Company with name {name} already exists'}
-        new_company = Company(name=name, address=address, owner_id=current_user_id)
+        new_company = Company(name=name, address=address, owner_id=current_user.id)
         try:
             new_company.save_to_db()
-            return {
-                'message': f'Company {new_company} was created',
-            }
+            return {'message': f'Company {new_company} was created'}
         except Exception as e:
             return {'message': f"Something went wrong, exception {str(e)}"}, 400
 
-    @jwt_required()
+    @admin_required()
     def put(self, company_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can update company'}, 403
+        current_user = get_current_user()
         data = request.get_json()
         errors = company_update_form_schema.validate(data)
         if errors:
             return {'message': f'Incorrect data {errors}'}, 400
-        company = Company.query.filter_by(id=company_id, owner_id=user.id).first_or_404()
+        company = Company.query.filter_by(id=company_id, owner_id=current_user.id).first_or_404()
         for key, value in data.items():
             setattr(company, key, value)
         try:
             company.save_to_db()
-            return {
-                'message': f'Company {company.name} has been updated'
-            }
+            return {'message': f'Company {company.name} has been updated'}
         except Exception as e:
             return {'message': f"Something went wrong {str(e)}"}, 400
 
@@ -288,17 +254,13 @@ class ProfileView(MethodView):
 
     @jwt_required()
     def get(self):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        result = user_profile_form_schema.dump(user)
+        current_user = get_current_user()
+        result = user_profile_form_schema.dump(current_user)
         return result
 
     @jwt_required()
     def put(self):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
+        current_user = get_current_user()
         data = request.get_json()
         errors = user_update_profile_form_schema.validate(data)
         if errors:
@@ -306,12 +268,10 @@ class ProfileView(MethodView):
         if data.get('password'):
             data['password'] = User.generate_hash(data.get('password'))
         for key, value in data.items():
-            setattr(user, key, value)
+            setattr(current_user, key, value)
         try:
-            user.save_to_db()
-            return {
-                'message': f'User {user} has been updated'
-            }
+            current_user.save_to_db()
+            return {'message': f'User {current_user} has been updated'}
         except Exception as e:
             return {'message': f"Something went wrong {str(e)}"}, 400
 
@@ -320,41 +280,35 @@ class OfficeView(MethodView):
 
     @jwt_required()
     def get(self, office_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if not user.is_staff():
+        current_user = get_current_user()
+        if not current_user.is_staff():
             if office_id:
                 office = Office.query.filter_by(
-                    id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user_id).first_or_404()
+                    id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user.id).first_or_404()
                 result = office_get_form_schema.dump(office)
             else:
                 # TODO what if admin have a couple of companies?
-                offices = Office.query.join(Office.company, aliased=True).filter_by(owner_id=current_user_id).all()
+                offices = Office.query.join(Office.company, aliased=True).filter_by(owner_id=current_user.id).all()
                 result = jsonify({'offices': offices_with_company_info_list_form_schema.dump(offices)})
-        elif user.chief_id:
+        elif current_user.chief_id:
             if office_id:
                 return {'message': 'Administrator permissions required'}, 403
-            offices = user.company.offices
+            offices = current_user.company.offices
             result = jsonify({'offices': offices_list_form_schema.dump(offices)})
         else:
-            result = {'message': f'User {user} is not a member of any company'}
+            result = {'message': f'User {current_user} is not a member of any company'}
         return result
 
-    @jwt_required()
+    @admin_required()
     def post(self, **kwargs):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can create office'}, 403
+        current_user = get_current_user()
         data = request.get_json()
         errors = office_form_schema.validate(data)
         if errors:
             return {'message': f'Incorrect data {errors}'}, 400
         name = data.get('name')
         received_company_id = data.get("company_id")
-        company = Company.query.filter_by(owner_id=user.id).first_or_404()
+        company = Company.query.filter_by(owner_id=current_user.id).first_or_404()
         company_id = received_company_id if received_company_id else company.id
         if Office.check_on_unique_name(name, company_id):
             return {'message': f'Office with name {name} already exist in {company.name}'}
@@ -369,49 +323,35 @@ class OfficeView(MethodView):
         )
         try:
             new_office.save_to_db()
-            return {
-                'message': f'Office with name {new_office} was created',
-            }
+            return {'message': f'Office with name {new_office} was created'}
         except Exception as e:
             return {'message': f"Something went wrong, exception {str(e)}"}, 400
 
-    @jwt_required()
+    @admin_required()
     def put(self, office_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can update office'}, 403
+        current_user = get_current_user()
         data = request.get_json()
         errors = offices_update_form_schema.validate(data)
         if errors:
             return {'message': f'Incorrect data {errors}'}, 400
         office = Office.query.filter_by(
-            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user_id).first_or_404()
+            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user.id).first_or_404()
         for key, value in data.items():
             setattr(office, key, value)
         try:
             office.save_to_db()
-            return {
-                'message': f'Office {office.name} has been updated'
-            }
+            return {'message': f'Office {office.name} has been updated'}
         except Exception as e:
             return {'message': f"Something went wrong {str(e)}"}, 400
 
-    @jwt_required()
+    @admin_required()
     def delete(self, office_id):
-        claims = get_jwt()
-        current_user_id = claims.get('id')
-        user = User.query.get_or_404(current_user_id)
-        if user.is_staff():
-            return {'message': 'Only administrator can delete office'}, 403
+        current_user = get_current_user()
         office = Office.query.filter_by(
-            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user_id).first_or_404()
+            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user.id).first_or_404()
         try:
             office.delete_from_db()
-            return {
-                'message': 'Office has been deleted',
-            }
+            return {'message': 'Office has been deleted'}
         except Exception as e:
             return {'message': f"Something went wrong {str(e)}"}, 400
 
