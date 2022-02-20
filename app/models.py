@@ -94,13 +94,28 @@ class Office(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     company = db.relationship('Company', back_populates='offices')
 
-    def __init__(self, name, address, country, city, region):
+    @classmethod
+    def check_on_unique_name(cls, name, company_id):
+        return cls.query.filter_by(name=name, company_id=company_id).first()
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def __init__(self, name, address, country, city, region, company_id):
         self.name = name
         self.address = address
         self.country = country
         self.city = city
         self.region = region
+        self.company_id = company_id
 
+    def __repr__(self):
+        return self.name
 
 
 class RevokedTokenModel(db.Model):

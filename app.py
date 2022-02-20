@@ -36,14 +36,7 @@ app.add_url_rule('/company/<int:company_id>', view_func=company_view, methods=['
 app.add_url_rule('/profile/', view_func=profile_view, methods=['GET', 'PUT'])
 
 app.add_url_rule('/office/', defaults={'office_id': None}, view_func=office_view, methods=['GET', 'POST'])
-app.add_url_rule('/office/<int:office_id>', view_func=office_view, methods=['GET', 'PUT'])
+app.add_url_rule('/office/<int:office_id>', view_func=office_view, methods=['GET', 'PUT', "DELETE"])
 
-# #api.add_resource(resources.UserRegistration, '/user/registration')
-# api.add_resource(resources.UserRegistration, '/users', endpoint="UserRegistration",
-#                  resource_class_kwargs={"get_request_allowed": True, "post_request_allowed": True})
-# api.add_resource(resources.UserRegistration, '/users/get', endpoint="UserRegistration_get",
-#                  resource_class_kwargs={"get_request_allowed": True})
-
-#api.add_resource(resources.AllUsers, '/users')
 
 app.run(port=5000)

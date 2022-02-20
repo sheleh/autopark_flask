@@ -18,7 +18,8 @@ from .schemas import (
     single_user_update_form_schema,
     user_login_form_schema,
     user_create_form_schema, company_list_form_schema, company_update_form_schema, user_profile_form_schema,
-    user_update_profile_form_schema, office_form_schema
+    user_update_profile_form_schema, office_form_schema, offices_list_form_schema, office_get_form_schema,
+    offices_update_form_schema, offices_with_company_info_list_form_schema
 )
 
 
@@ -138,7 +139,7 @@ class UserView(MethodView):
         current_user_id = claims.get('id')
         user = User.query.get_or_404(current_user_id)
         if user.is_staff():
-            return {'message': 'Only administrator can create employees'}, 403
+            return {'message': 'Only administrator can delete employees'}, 403
         employee = User.query.filter_by(id=user_id, chief_id=current_user_id).first_or_404()
         try:
             employee.delete_from_db()
@@ -176,13 +177,11 @@ class UserLogin(Resource):
 
 
 class UserLogoutAccess(Resource):
-    """User Logout API"""
 
     @jwt_required
     def post(self):
         jti = get_jwt()['jti']
         try:
-            # Revoking access token
             revoked_token = RevokedTokenModel(jti=jti)
             revoked_token.add()
             return {'message': 'Acess token has been revoked'}
@@ -324,17 +323,20 @@ class OfficeView(MethodView):
         claims = get_jwt()
         current_user_id = claims.get('id')
         user = User.query.get_or_404(current_user_id)
-        print(user)
         if not user.is_staff():
             if office_id:
-                office = Office.query.filter_by(id=office_id, owner_id=user.id).first_or_404()
-                result = office_form_schema.dump(office)
+                office = Office.query.filter_by(
+                    id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user_id).first_or_404()
+                result = office_get_form_schema.dump(office)
             else:
-                office = Office.query.filter_by(owner_id=user.id).all()
-                result = jsonify({'office': office_form_schema.dump(office)})
+                # TODO what if admin have a couple of companies?
+                offices = Office.query.join(Office.company, aliased=True).filter_by(owner_id=current_user_id).all()
+                result = jsonify({'offices': offices_with_company_info_list_form_schema.dump(offices)})
         elif user.chief_id:
-            company = user.company
-            result = company_form_schema.dump(company)
+            if office_id:
+                return {'message': 'Administrator permissions required'}, 403
+            offices = user.company.offices
+            result = jsonify({'offices': offices_list_form_schema.dump(offices)})
         else:
             result = {'message': f'User {user} is not a member of any company'}
         return result
@@ -344,37 +346,74 @@ class OfficeView(MethodView):
         claims = get_jwt()
         current_user_id = claims.get('id')
         user = User.query.get_or_404(current_user_id)
-        print(user.__dict__)
         if user.is_staff():
             return {'message': 'Only administrator can create office'}, 403
         data = request.get_json()
-        errors = user_update_profile_form_schema.validate(data)
-        print(data)
+        errors = office_form_schema.validate(data)
         if errors:
             return {'message': f'Incorrect data {errors}'}, 400
-        # name = data.get('name')
-        # address = data.get('address')
-        # if Company.find_by_name(name):
-        #     return {'message': f'Company with name {name} already exists'}
+        name = data.get('name')
+        received_company_id = data.get("company_id")
         company = Company.query.filter_by(owner_id=user.id).first_or_404()
-        print(company.__dict__)
-        print(company.members)
+        company_id = received_company_id if received_company_id else company.id
+        if Office.check_on_unique_name(name, company_id):
+            return {'message': f'Office with name {name} already exist in {company.name}'}
+        # TODO Can admin create office to another user company?
         new_office = Office(
-            name=data.get('name'),
+            name=name,
             address=data.get('address'),
             country=data.get('country'),
             city=data.get('city'),
-            region=data.get('region')
-
+            region=data.get('region'),
+            company_id=company_id
         )
-
         try:
             new_office.save_to_db()
             return {
-                'message': f'Company {new_company} was created',
+                'message': f'Office with name {new_office} was created',
             }
         except Exception as e:
             return {'message': f"Something went wrong, exception {str(e)}"}, 400
+
+    @jwt_required()
+    def put(self, office_id):
+        claims = get_jwt()
+        current_user_id = claims.get('id')
+        user = User.query.get_or_404(current_user_id)
+        if user.is_staff():
+            return {'message': 'Only administrator can update office'}, 403
+        data = request.get_json()
+        errors = offices_update_form_schema.validate(data)
+        if errors:
+            return {'message': f'Incorrect data {errors}'}, 400
+        office = Office.query.filter_by(
+            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user_id).first_or_404()
+        for key, value in data.items():
+            setattr(office, key, value)
+        try:
+            office.save_to_db()
+            return {
+                'message': f'Office {office.name} has been updated'
+            }
+        except Exception as e:
+            return {'message': f"Something went wrong {str(e)}"}, 400
+
+    @jwt_required()
+    def delete(self, office_id):
+        claims = get_jwt()
+        current_user_id = claims.get('id')
+        user = User.query.get_or_404(current_user_id)
+        if user.is_staff():
+            return {'message': 'Only administrator can delete office'}, 403
+        office = Office.query.filter_by(
+            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user_id).first_or_404()
+        try:
+            office.delete_from_db()
+            return {
+                'message': 'Office has been deleted',
+            }
+        except Exception as e:
+            return {'message': f"Something went wrong {str(e)}"}, 400
 
 
 profile_view = ProfileView.as_view('profile_api')

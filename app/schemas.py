@@ -46,17 +46,18 @@ class UserSchema(ma.SQLAlchemySchema):
 
 
 class OfficeSchema(ma.SQLAlchemySchema):
-    name = fields.String(required=True, validate=[validate.Length(min=1, max=100)])
+    name = fields.String(required=True, validate=[validate.Length(min=1, max=100)], unique=True)
     address = fields.String(required=False, validate=[validate.Length(min=8, max=150)])
     country = fields.String(required=False, validate=[validate.Length(min=3, max=50)])
     city = fields.String(required=False, validate=[validate.Length(min=3, max=50)])
+    company_id = fields.Integer(required=False)
     region = fields.String(required=False)
-    company = fields.Nested(CompanySchema())
+    company = fields.Nested(CompanySchema(exclude=['address']))
 
     class Meta:
         model = Office
         ordered = True
-        fields = ['id', 'address', 'country', 'city', 'region', 'company']
+        fields = ['id', 'name', 'address', 'country', 'city', 'region', 'company', 'company_id']
 
 
 admin_form_schema = AdminUserSchema()
@@ -76,3 +77,7 @@ user_update_profile_form_schema = UserSchema(
 )
 
 office_form_schema = OfficeSchema()
+office_get_form_schema = OfficeSchema(exclude=('company', 'company_id'))
+offices_with_company_info_list_form_schema = OfficeSchema(many=True, exclude=('company_id',))
+offices_list_form_schema = OfficeSchema(many=True, exclude=('company', 'company_id'))
+offices_update_form_schema = OfficeSchema(partial=True)
