@@ -1,29 +1,20 @@
 from flask_restful import Api
 from app import app
-from app.models import db
-from app import models, resources
-from app.resources import user_view, company_view, profile_view, office_view
+from app import resources
+from app.auth.routes import auth_module_routes
+
+from app.resources import (
+    user_view,
+    company_view,
+    profile_view,
+    office_view,
+    users_and_offices_relation_view,
+    vehicle_view
+)
 
 api = Api(app)
 
-
-# Generating tables before first request is fetched
-@app.before_first_request
-def create_tables():
-    db.create_all()
-
-
-# Checking that token is in blacklist or not
-def check_if_token_in_blacklist(decrypted_token):
-    jti = decrypted_token['jti']
-    return models.RevokedTokenModel.is_jti_blacklisted(jti)
-
-
-# api Endpoints
-api.add_resource(resources.UserLogin, '/login')
-api.add_resource(resources.UserLogoutAccess, '/logout/access')
-api.add_resource(resources.UserLogoutRefresh, '/logout/refresh')
-api.add_resource(resources.TokenRefresh, '/token/refresh')
+auth_module_routes(api)
 
 api.add_resource(resources.AdminRegistration, '/admin/registration')
 
@@ -38,5 +29,12 @@ app.add_url_rule('/profile/', view_func=profile_view, methods=['GET', 'PUT'])
 app.add_url_rule('/office/', defaults={'office_id': None}, view_func=office_view, methods=['GET', 'POST'])
 app.add_url_rule('/office/<int:office_id>', view_func=office_view, methods=['GET', 'PUT', "DELETE"])
 
+app.add_url_rule(
+    '/office/<int:office_id>/assign/<int:user_id>', view_func=users_and_offices_relation_view, methods=['PUT']
+)
+app.add_url_rule('/my_office/', view_func=users_and_offices_relation_view, methods=['GET'])
+
+app.add_url_rule('/vehicle/', defaults={'vehicle_id': None}, view_func=vehicle_view, methods=['GET', 'POST'])
+app.add_url_rule('/vehicle/<int:vehicle_id>', view_func=vehicle_view, methods=['GET', 'PUT', 'DELETE'])
 
 app.run(port=5000)

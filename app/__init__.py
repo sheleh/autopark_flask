@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from config import DevelopmentConfig
 from flask_marshmallow import Marshmallow
+
 app = Flask(__name__)
 
 
@@ -15,7 +16,6 @@ app.config['JSON_SORT_KEYS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 jwt = JWTManager(app)
-from app import routes, models
 
 migrate = Migrate(app, db)
 
