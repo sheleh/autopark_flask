@@ -1,7 +1,10 @@
 from datetime import date
 from marshmallow import fields, validate, validates_schema, ValidationError, RAISE
 from app import ma
-from app.models import Company, User, Office, Vehicle
+from app.accounts.models import User
+from app.companys.models import Company
+from app.offices.models import Office
+from app.vehicles.models import Vehicle
 
 
 class AdminUserSchema(ma.SQLAlchemySchema):

@@ -2,11 +2,9 @@ import pdb
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, abort
 from flask import request, Response
-
-from app.models import User
-from app.schemas import user_login_form_schema
-
+from app.accounts.models import User
 from .models import RevokedTokenModel
+from app.schemas import user_login_form_schema
 
 
 class UserLogin(Resource):
