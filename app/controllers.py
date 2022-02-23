@@ -1,7 +1,8 @@
 from flask import jsonify, request, Response
 from flask.views import MethodView
 from flask_restful import Resource, abort
-
+from sqlalchemy import and_
+from .utils import url_filter
 from .auth.utils import admin_required, get_current_user
 from .models import User, Company, Office, Vehicle
 from flask_jwt_extended import (
@@ -35,29 +36,39 @@ class AdminRegistration(Resource):
             return {'message': f'User with {email} email already exists'}
         new_user = User(
             email=email,
+            first_name=data.get('first_name'),
+            last_name=data.get('last_name'),
             password=User.generate_hash(data.get('password')),
-            is_stafff=False
+            is_stafff=False,
+            company_id=None,
+            office_id=None,
+            chief_id=None,
         )
         try:
             new_user.save_to_db()
-            access_token = create_access_token(identity=email)
-            refresh_token = create_refresh_token(identity=email)
+            # access_token = create_access_token(identity=email)
+            # refresh_token = create_refresh_token(identity=email)
             return {
                 'message': f'User {email} was created',
-                'access_token': access_token,
-                'refresh_token': refresh_token
+                # 'access_token': access_token,
+                # 'refresh_token': refresh_token
             }
         except Exception as e:
             abort(Response(f'Something went wrong! {e}', 400))
 
 
 class UserView(MethodView):
+
     @admin_required()
     def get(self, user_id):
+        args = request.args
+        filters = ['last_name', 'first_name', 'email']
         current_user = get_current_user()
-        employees = User.query.filter_by(chief_id=current_user.id)
+        query_filters = url_filter(filters, args, User)
+
+        employees = User.query.filter_by(chief_id=current_user.id).filter(and_(*query_filters))
         if user_id:
-            employee = employees.first_or_404(user_id)
+            employee = employees.filter_by(id=user_id).first_or_404()
             result = single_user_form_schema.dump(employee)
         else:
             result = jsonify({'users': users_form_schema.dump(employees)})
@@ -66,21 +77,23 @@ class UserView(MethodView):
     @admin_required()
     def post(self, **kwargs):
         current_user = get_current_user()
-        company = Company.query.filter_by(owner_id=current_user.id).first()
         data = request.get_json()
         errors = user_create_form_schema.validate(data)
         if errors:
             abort(Response(f'Incorrect data {errors}', 400))
         email = data.get('email')
+        company = Company.query.filter_by(owner_id=current_user.id).first()
         if User.find_by_email(email):
             return {'message': f'User with {email} email already exists'}
         new_user = User(
             email=email,
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
+            is_stafff=True,
             chief_id=current_user.id,
             password=User.generate_hash(data.get('password')),
-            company_id=company.id if company else None
+            company_id=company.id if company else None,
+            office_id=None
         )
         try:
             new_user.save_to_db()
@@ -108,12 +121,8 @@ class UserView(MethodView):
             setattr(employee, key, value)
         try:
             employee.save_to_db()
-            access_token = create_access_token(identity=data.get('email'))
-            refresh_token = create_refresh_token(identity=data.get('email'))
             return {
                 'message': 'User has been updated',
-                'access_token': access_token,
-                'refresh_token': refresh_token
             }
         except Exception as e:
             abort(Response(f'Something went wrong! {e}', 400))
@@ -150,7 +159,7 @@ class CompanyView(MethodView):
         return result
 
     @admin_required()
-    def post(self):
+    def post(self, **kwargs):
         current_user = get_current_user()
         data = request.get_json()
         errors = company_form_schema.validate(data)
@@ -222,7 +231,11 @@ class OfficeView(MethodView):
                 result = office_get_form_schema.dump(office)
             else:
                 # TODO what if admin have a couple of companies?
-                offices = Office.query.join(Office.company, aliased=True).filter_by(owner_id=current_user.id).all()
+                args = request.args
+                filters = ['name', 'address', 'country', 'city', 'region']
+                query_filters = url_filter(filters, args, Office)
+                offices = Office.query.join(
+                    Office.company, aliased=True).filter_by(owner_id=current_user.id).filter(and_(*query_filters)).all()
                 result = jsonify({'offices': offices_with_company_info_list_form_schema.dump(offices)})
         elif current_user.chief_id:
             if office_id:
@@ -238,7 +251,6 @@ class OfficeView(MethodView):
         current_user = get_current_user()
         data = request.get_json()
         errors = office_form_schema.validate(data)
-        # TODO how to raise 400 ????
         if errors:
             response = jsonify({'message': f'Incorrect data {errors}'})
             response.status_code = 400
@@ -247,8 +259,9 @@ class OfficeView(MethodView):
         received_company_id = data.get("company_id")
         company = Company.query.filter_by(owner_id=current_user.id).first_or_404()
         company_id = received_company_id if received_company_id else company.id
+        # TODO what if admin sent another admin company_id?
         if Office.check_on_unique_name(name, company_id):
-            return {'message': f'Office with name {name} already exist in {company.name}'}
+            abort(Response(f'Office with name {name} already exist in {company.name}', 400))
         # TODO Can admin create office to another user company?
         new_office = Office(
             name=name,
@@ -328,8 +341,32 @@ class VehicleView(MethodView):
                 result = vehicle_create_form_schema.dump(vehicle)
             else:
                 # TODO what if admin have a couple of companies?
-                company = Company.query.filter_by(owner_id=current_user.id).first_or_404()
-                result = jsonify({'vehicles': vehicle_list_form_schema.dump(company.vehicles)})
+                args = request.args
+                filters = ['office_id', 'driver_id']
+                checked_arg = {
+                    key: value if key in filters and value.isdigit() else
+                    abort(Response(f'Incorrect filter', 400)) for key, value in args.items()
+                }
+                args_office = checked_arg.get('office_id')
+                args_driver = checked_arg.get('driver_id')
+                if args_office and args_driver:
+                    vehicles = Vehicle.query.filter_by(
+                        office_id=args_office).join(Vehicle.driver).filter_by(
+                        id=args_driver).join(Vehicle.company).filter_by(
+                        owner_id=current_user.id).all()
+                    result = jsonify({'vehicles': vehicle_list_form_schema.dump(vehicles)})
+                elif args_driver:
+                    driver = User.query.filter_by(id=args_driver, chief_id=current_user.id).first_or_404()
+                    result = jsonify({'vehicles': vehicle_list_form_schema.dump(driver.vehicle)})
+                elif args_office:
+                    office = Office.query.filter_by(
+                        id=args_office).join(Office.company, aliased=True).filter_by(
+                        owner_id=current_user.id).first_or_404()
+                    result = jsonify({'vehicles': vehicle_list_form_schema.dump(office.vehicles)})
+                else:
+                    company = Company.query.filter_by(owner_id=current_user.id).first_or_404()
+                    result = jsonify({'vehicles': vehicle_list_form_schema.dump(company.vehicles)})
+
         elif current_user.chief_id:
             if vehicle_id:
                 return {'message': 'Administrator permissions required'}, 403
@@ -354,7 +391,7 @@ class VehicleView(MethodView):
         driver_id = data.get('driver_id')
         if Vehicle.check_on_unique_license_plate(license_plate):
             return {'message': f'Vehicle with license plate {license_plate} already exists'}
-        if not company.check_office_exists(office_id):
+        if office_id and not company.check_office_exists(office_id):
             abort(Response(f'Office with id = {office_id} not exists in company', 400))
         driver = User.query.filter_by(id=driver_id, office_id=office_id).first()
         new_vehicle = Vehicle(
@@ -383,14 +420,13 @@ class VehicleView(MethodView):
         office_id = data.get('office_id')
         driver_id = data.get('driver_id')
         company = Company.query.filter_by(owner_id=current_user.id).first()
-
         if office_id and not company.check_office_exists(office_id):
             abort(Response(f'Office with id = {office_id} not exists in company', 400))
-
         driver = User.query.filter_by(id=driver_id, office_id=office_id).first()
+        if not driver:
+            abort(Response(f'You can not assign driver to this vehicle', 400))
         vehicle = Vehicle.query.join(Company, aliased=True).filter(Vehicle.id == vehicle_id).filter(
             Company.owner_id == current_user.id).first_or_404()
-
         for key, value in data.items():
             setattr(vehicle, key, value)
         try:

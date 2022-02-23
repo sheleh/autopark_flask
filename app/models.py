@@ -16,14 +16,14 @@ class User(db.Model):
     first_name = db.Column(db.String(70))
     last_name = db.Column(db.String(70))
     is_stafff = db.Column(db.Boolean(), default=True)
-    chief_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    chief_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)
     company = db.relationship('Company', back_populates="members", foreign_keys=[company_id])
     office_id = db.Column(db.Integer, db.ForeignKey('office.id'), nullable=True)
     office = db.relationship('Office', back_populates="worker", foreign_keys=[office_id])
     vehicle = db.relationship('Vehicle', secondary=drivers_association_table, back_populates='driver')
 
-    def __init__(self, email, password, first_name, last_name, chief_id, company_id, office_id):
+    def __init__(self, email, password, first_name, last_name, chief_id, company_id, office_id, is_stafff ):
         self.email = email
         self.password = password
         self.first_name = first_name
@@ -31,7 +31,8 @@ class User(db.Model):
         self.chief_id = chief_id
         self.company_id = company_id
         self.office_id = office_id
-
+        self.is_stafff = is_stafff
+        #self.vehicle = vehicle
 
     """Save user details to DataBase"""
     def save_to_db(self):
@@ -85,7 +86,6 @@ class Company(db.Model):
     @classmethod
     def check_office_exists(cls, office_id):
         return cls.query.join(cls.offices).filter(Office.id == office_id).first()
-        #chat.query.join(user.chats).filter(user.id == 1).all()
 
     def __init__(self, name, address, owner_id):
         self.name = name

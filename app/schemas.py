@@ -6,8 +6,8 @@ from app.models import Company, User, Office, Vehicle
 
 class AdminUserSchema(ma.SQLAlchemySchema):
     email = fields.Email(required=True, validate=[validate.Length(min=2, max=80)])
-    firstname = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
-    lastname = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
+    first_name = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
+    last_name = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
     password = fields.String(required=True, validate=[validate.Length(min=2, max=50)])
     confirm_password = fields.String(required=True, validate=[validate.Length(min=2, max=50)])
 
@@ -19,7 +19,7 @@ class AdminUserSchema(ma.SQLAlchemySchema):
     class Meta:
         model = User
         ordered = True
-        fields = ['email', 'firstname', 'lastname', 'password', 'confirm_password']
+        fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password', ]
 
 
 class CompanySchema(ma.SQLAlchemySchema):
@@ -66,7 +66,7 @@ class OfficeSchema(ma.SQLAlchemySchema):
 class VehicleSchema(ma.SQLAlchemySchema):
     license_plate = fields.String(required=True, validate=[validate.Length(min=2, max=15)])
     name = fields.String(required=True, validate=[validate.Length(min=1, max=100)])
-    model = fields.String(required=True, validate=[validate.Length(min=3, max=50)])
+    model = fields.String(required=True, validate=[validate.Length(min=1, max=50)])
     year_of_manufacture = fields.Integer(required=True, validate=[validate.Range(min=1885, max=int(date.today().year))])
     company_id = fields.Integer(required=False)
     company = fields.Nested(CompanySchema(exclude=['address']))
@@ -105,6 +105,6 @@ offices_list_form_schema = OfficeSchema(many=True, exclude=('company', 'company_
 offices_update_form_schema = OfficeSchema(partial=True)
 
 vehicle_create_form_schema = VehicleSchema()
-vehicle_list_form_schema = VehicleSchema(many=True)
+vehicle_list_form_schema = VehicleSchema(many=True, exclude=('company_id', 'office_id'))
 vehicle_update_form_schema = VehicleSchema()
 vehicle_staff_form_schema = VehicleSchema(many=True, exclude=('driver', 'company_id', 'office_id', 'company'))

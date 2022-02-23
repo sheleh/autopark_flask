@@ -1,9 +1,9 @@
 from flask_restful import Api
 from app import app
-from app import resources
+from app import controllers
 from app.auth.routes import auth_module_routes
 
-from app.resources import (
+from app.controllers import (
     user_view,
     company_view,
     profile_view,
@@ -16,7 +16,7 @@ api = Api(app)
 
 auth_module_routes(api)
 
-api.add_resource(resources.AdminRegistration, '/admin/registration')
+api.add_resource(controllers.AdminRegistration, '/admin/registration')
 
 app.add_url_rule('/users/', defaults={'user_id': None}, view_func=user_view, methods=['GET', 'POST'])
 app.add_url_rule('/users/<int:user_id>', view_func=user_view, methods=['GET', 'PUT', 'DELETE'])
