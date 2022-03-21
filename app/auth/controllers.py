@@ -1,19 +1,16 @@
 import pdb
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, abort
-from flask import request, Response
-from app.accounts.models import User
-from .models import RevokedTokenModel
+from flask import Response
+from app.database.models import User, RevokedTokenModel
 from app.schemas import user_login_form_schema
+from app.utils import validate_request_data
 
 
 class UserLogin(Resource):
     """User login API"""
     def post(self):
-        data = request.get_json()
-        errors = user_login_form_schema.validate(data)
-        if errors:
-            abort(Response(f'Incorrect data {errors}', 400))
+        data = validate_request_data(user_login_form_schema)
         email = data.get('email')
         current_user = User.find_by_email(email)
         # TODO: need to change this condition
@@ -29,11 +26,11 @@ class UserLogin(Resource):
                 'refresh': refresh_token,
             }
         else:
-            return {'message': "wrong Credentials"}, 403
+            return {'message': "Wrong Credentials"}, 403
 
 
 class UserLogoutAccess(Resource):
-    @jwt_required
+    @jwt_required()
     def post(self):
         jti = get_jwt()['jti']
         try:
@@ -54,7 +51,7 @@ class UserLogoutRefresh(Resource):
             revoked_token = RevokedTokenModel(jti=jti)
             revoked_token.add()
             pdb.set_trace()
-            return {'message': 'Refresh token has been revoked'}
+            return {'message': 'Refresh token has been revoked'}, 403
         except Exception as e:
             abort(Response(f'Something went wrong! {e}', 400))
 

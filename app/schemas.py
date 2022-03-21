@@ -1,23 +1,24 @@
 from datetime import date
-from marshmallow import fields, validate, validates_schema, ValidationError, RAISE
-from app import ma
-from app.accounts.models import User
-from app.companys.models import Company
-from app.offices.models import Office
-from app.vehicles.models import Vehicle
+from flask_marshmallow import Marshmallow
+from marshmallow import fields, validate, validates_schema, RAISE
+from app.database.models import User, Company, Office, Vehicle
+from flask_restful import abort
+from flask import Response
+
+ma = Marshmallow()
 
 
 class AdminUserSchema(ma.SQLAlchemySchema):
     email = fields.Email(required=True, validate=[validate.Length(min=2, max=80)])
     first_name = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
     last_name = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
-    password = fields.String(required=True, validate=[validate.Length(min=2, max=50)])
+    password = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
     confirm_password = fields.String(required=True, validate=[validate.Length(min=2, max=50)])
 
     @validates_schema
     def validate_password(self, data, **kwargs):
         if data["password"] != data["confirm_password"]:
-            raise ValidationError("Passwords did not matched")
+            abort(Response({'Passwords did not matched'}, 400))
 
     class Meta:
         model = User
@@ -40,7 +41,7 @@ class UserSchema(ma.SQLAlchemySchema):
     email = fields.Email(required=True, validate=[validate.Length(min=2, max=80)])
     first_name = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
     last_name = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
-    password = fields.String(required=True, validate=[validate.Length(min=2, max=50)])
+    password = fields.String(required=True, validate=[validate.Length(min=2, max=100)])
     company_id = fields.Integer(required=False)
     company = fields.Nested(CompanySchema())
 
@@ -57,13 +58,12 @@ class OfficeSchema(ma.SQLAlchemySchema):
     city = fields.String(required=False, validate=[validate.Length(min=3, max=50)])
     company_id = fields.Integer(required=False)
     region = fields.String(required=False)
-    company = fields.Nested(CompanySchema(exclude=['address']))
 
     class Meta:
         model = Office
         ordered = True
         unknown = RAISE
-        fields = ['id', 'name', 'address', 'country', 'city', 'region', 'company', 'company_id']
+        fields = ['id', 'name', 'address', 'country', 'city', 'region', 'company_id']
 
 
 class VehicleSchema(ma.SQLAlchemySchema):
@@ -96,18 +96,20 @@ company_form_schema = CompanySchema()
 company_list_form_schema = CompanySchema(many=True)
 company_update_form_schema = CompanySchema(partial=True)
 
+
 user_profile_form_schema = UserSchema(only=('email', 'first_name', 'last_name'))
 user_update_profile_form_schema = UserSchema(
     partial=True, only=('email', 'first_name', 'last_name', 'password'), dump_only=('email',), load_only=('password',)
 )
 
 office_form_schema = OfficeSchema()
-office_get_form_schema = OfficeSchema(exclude=('id', 'company', 'company_id'))
+office_get_form_schema = OfficeSchema(exclude=('id', 'company_id'))
 offices_with_company_info_list_form_schema = OfficeSchema(many=True, exclude=('company_id',))
-offices_list_form_schema = OfficeSchema(many=True, exclude=('company', 'company_id'))
+offices_list_form_schema = OfficeSchema(many=True)
 offices_update_form_schema = OfficeSchema(partial=True)
 
 vehicle_create_form_schema = VehicleSchema()
-vehicle_list_form_schema = VehicleSchema(many=True, exclude=('company_id', 'office_id'))
+vehicle_list_form_schema = VehicleSchema(many=True, exclude=('company_id', 'office_id', 'company'))
+vehicle_retrieve_form_schema = VehicleSchema(exclude=('company_id', 'office_id', 'company'))
 vehicle_update_form_schema = VehicleSchema()
 vehicle_staff_form_schema = VehicleSchema(many=True, exclude=('driver', 'company_id', 'office_id', 'company'))
