@@ -23,7 +23,7 @@ class AdminUserSchema(ma.SQLAlchemySchema):
     class Meta:
         model = User
         ordered = True
-        fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password', ]
+        fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password']
 
 
 class CompanySchema(ma.SQLAlchemySchema):
@@ -93,7 +93,6 @@ single_user_update_form_schema = UserSchema(partial=True, dump_only=('email',))
 users_form_schema = UserSchema(many=True, only=('id', 'email', 'first_name', 'last_name', 'company_id'))
 
 company_form_schema = CompanySchema()
-company_list_form_schema = CompanySchema(many=True)
 company_update_form_schema = CompanySchema(partial=True)
 
 

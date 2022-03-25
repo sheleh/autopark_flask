@@ -11,23 +11,6 @@ services:
     ports:
       - "5432:5432"
 
-#  postgres_test:
-#    container_name: postgres_test
-#    restart: always
-#    image: postgres:latest
-#    environment:
-#          #SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://autopark_su:password@postgres:5435/flask_db"
-#    #      - APP_ENV='development'
-#      POSTGRES_HOST: postgres_test
-#      POSTRGES_USER: autopark_su
-#      POSTGRES_PASSWORD: password
-#      POSTGRES_DB: flask_db_test
-#      POSTGRES_PORT: 5432
-##    env_file:
-##      - .env
-#    ports:
-#      - "5433:5432"
-
   app:
     container_name: autopark-application
     restart: always
@@ -43,6 +26,11 @@ services:
     env_file:
       - .env
     command: ["/bin/bash", "/code/docker-entrypoint.sh"]
+
+  adminer:
+    image: adminer
+    ports:
+      - "8083:8080"
 
 volumes:
   pgdata:

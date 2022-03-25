@@ -12,7 +12,7 @@ def test_create_admin(test_client):
     assert created_admin.first_name == admin_data.get('first_name')
     assert created_admin.last_name == admin_data.get('last_name')
     #assert created_admin.password == sha256.hash(data.get('password'))
-    assert created_admin.is_stafff is False
+    assert created_admin.is_staff() is False
 
 
 def test_can_not_create_admin_twice(test_client, init_test_database):
@@ -70,9 +70,9 @@ def test_admin_can_view_own_company(test_client, init_test_database, admin_token
     response = test_client.get('/api/company/', headers=admin_token)
     json_response = json.loads(response.data)
     assert response.status_code == 200
-    assert company_1_data['name'] == json_response['company'][0]['name']
-    assert company_1_data['address'] == json_response['company'][0]['address']
-    assert admin_user.company_id == json_response['company'][0]['id']
+    assert company_1_data['name'] == json_response['name']
+    assert company_1_data['address'] == json_response['address']
+    assert admin_user.company_id == json_response['id']
 
 
 def test_worker_can_view_his_company(test_client, init_test_database, worker_json_access_token):

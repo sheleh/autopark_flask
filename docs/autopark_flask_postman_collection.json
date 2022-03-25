@@ -1,0 +1,1136 @@
+{
+	"info": {
+		"_postman_id": "8747779d-e555-4335-9ae6-5924b0855c28",
+		"name": "autopark_flask",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:5000/api/admin/registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/admin/registration",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"admin",
+						"registration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"elon@admin.com\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/logout",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0ODEyNjY0NywianRpIjoiMDAxMjhlMTItMDk3MC00NTFkLWE0NWUtMjc4NzYzOTdiYTZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InN0ZXZlX2pvYnNAYWRtaW4uY29tIiwibmJmIjoxNjQ4MTI2NjQ3LCJleHAiOjE2NDgyMTMwNDcsImlkIjozMjR9.-_qHCOiFafGbkAgYhu8I5wiwOKvyW8MXbI_DgOFnAG0",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"elon@admin.com\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/logout",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/token/refresh",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0ODEzODE2MSwianRpIjoiZjc4ZmNiYTItMGVkMi00MjdkLWFiZTgtNGI4OTVmZmVjZWNkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InN0ZXZlX2pvYnNAYWRtaW4uY29tIiwibmJmIjoxNjQ4MTM4MTYxLCJleHAiOjE2NDgyMjQ1NjEsImlkIjozNjl9.dATG9SDcAxGVoY_yETDw1FAY-nicSoJvV_rChVqqm4I",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/token/refresh",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"token",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/users",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzUyMTYzOSwianRpIjoiYmMxYTI1YzgtNDM0Zi00NTZlLWIxY2ItYzMwOTk0ZDY1ZDVmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3NTIxNjM5LCJleHAiOjE2NDc2MDgwMzksImlkIjoyNzV9.CYN8R4U8NAZ5wXrP2t8Cwxd9ZLFJ6MYYQoUuW2tAtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"vasya@mail.ru\",\n    \"password\": \"password\",\n    \"first_name\": \"Vasili\",\n    \"last_name\": \"Petrov\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/users/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/users/<user_id>",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NTA5NjQxMywianRpIjoiZWEzMjMxMTAtYjk1MS00ZmYyLWE3MzUtZTBhMTVjYjgwY2RmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluQGFkbWluLmNvbSIsIm5iZiI6MTY0NTA5NjQxMywiZXhwIjoxNjQ1MDk3MzEzLCJpZCI6M30.KBvUghhpIwK3tyz6m-NDl2XHNE7FF5c_cF-acLDSOIM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"vasya@mail.ru\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/users/?filter=<key>",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0ODE0NTcwNiwianRpIjoiMzUwMzFmMzAtOWQ3NS00NDdlLWJhYTEtMGRhOWI3ZjU1NWFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InN0ZXZlX2pvYnNAYWRtaW4uY29tIiwibmJmIjoxNjQ4MTQ1NzA2LCJleHAiOjE2NDgyMzIxMDYsImlkIjozNjl9.VfN3K1c7UNQX-f9va1wpFEeUov5kSUjyNAFdmYLApyg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"vasya@mail.ru\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/users/?first_name=Vasiliy",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						""
+					],
+					"query": [
+						{
+							"key": "first_name",
+							"value": "Vasiliy"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/users/<user_id>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NjkwMzEzMSwianRpIjoiYTA2YTFjYTEtYTU4YS00ZDUxLTk4MmQtYzU1OWVjMjdiNzg2IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ2OTAzMTMxLCJleHAiOjE2NDY5ODk1MzEsImlkIjoyfQ.52dpZUd6YLifD5aAcqodcJIrKwPkef_jxikidkDJmD4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"changedMail@test.com\",\n    \"password\": \"password\",\n    \"first_name\": \"ED\",\n    \"last_name\": \"Sheeran\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/users/254",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"254"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/users/<user_id>",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0ODEyNjY0NywianRpIjoiMDAxMjhlMTItMDk3MC00NTFkLWE0NWUtMjc4NzYzOTdiYTZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InN0ZXZlX2pvYnNAYWRtaW4uY29tIiwibmJmIjoxNjQ4MTI2NjQ3LCJleHAiOjE2NDgyMTMwNDcsImlkIjozMjR9.-_qHCOiFafGbkAgYhu8I5wiwOKvyW8MXbI_DgOFnAG0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/users/325",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"325"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/company/create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0ODE1MzA1NSwianRpIjoiMGMxM2U4ZTYtM2NkZS00NGZhLTg3ODItZTJlYjliODBjNzQwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InN0ZXZlX2pvYnNAYWRtaW4uY29tIiwibmJmIjoxNjQ4MTUzMDU1LCJleHAiOjE2NDgyMzk0NTUsImlkIjozODl9.Ho9PGUBF1L4mTHRRQWQ0oIM29XkowNixMEXxFx_7y2M",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Tesla\",\n    \"address\": \"addresss123445\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/company/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"company",
+						""
+					],
+					"query": [
+						{
+							"key": "Con",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/company",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzEwMDk0NCwianRpIjoiZDEzZDg2NTItMDVlYS00NmU2LTk2ZjEtZmI4NTU0YzczYjU3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTAwOTQ0LCJleHAiOjE2NDcxODczNDQsImlkIjoyNzV9.SDF25RvVDg3W8fOgQnFkDW1Q7_XURi8TY4JsKYC3JL4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/company/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"company",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/company/",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0Njk4MjUzOSwianRpIjoiMzJiNzc2NTgtMDQxMi00YmQyLThmYjAtNjA0NWJlYWI1NGIwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ2OTgyNTM5LCJleHAiOjE2NDcwNjg5MzksImlkIjoyNjh9.PMT-PiFt0YYwtCDAl1UnZt_iDDRqpz75wsWzWrFg15I",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Tesla\",\n    \"address\": \"addresss123445\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/company/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"company",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/profile/",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0ODE0NjI0NywianRpIjoiMjUyMWJjZTgtMmM0YS00ZTgzLWJjMDYtZjlkMjdlZGRkZjJlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InN0ZXZlX2pvYnNAYWRtaW4uY29tIiwibmJmIjoxNjQ4MTQ2MjQ3LCJleHAiOjE2NDgyMzI2NDcsImlkIjozNjl9.UtMkzzbxqnF25_attGFE2Raz-kN7NgzziwCt9Iozc2A",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"address\": \"New York\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/profile/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/profile/",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0Njk4MjUzOSwianRpIjoiMzJiNzc2NTgtMDQxMi00YmQyLThmYjAtNjA0NWJlYWI1NGIwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ2OTgyNTM5LCJleHAiOjE2NDcwNjg5MzksImlkIjoyNjh9.PMT-PiFt0YYwtCDAl1UnZt_iDDRqpz75wsWzWrFg15I",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"first_name\": \"Andrew\",\n    \"last_name\": \"Smith\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/profile/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/offices/",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"SUPER Factory\",\n    \"address\": \"2346600 Fremont Boulevard\",\n    \"country\": \"USA\",\n    \"city\": \"Texas\",\n    \"region\": \"TA\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/office/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"office",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/offices/",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"second_office\",\n    \"address\": \"56_avenue\",\n    \"city\": \"New York\",\n    \"region\": \"NY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/office/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"office",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/offices/<id>",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"second_office\",\n    \"address\": \"56_avenue\",\n    \"city\": \"New York\",\n    \"region\": \"NY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/office/6",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"office",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/offices/<id>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Giga Factory\",\n    \"address\": \"Texas 97567\",\n    \"country\": \"USA\",\n    \"city\": \"Texas\",\n    \"region\": \"South part of America\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/office/6",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"office",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/offices/<id>",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0Njk4MjUzOSwianRpIjoiMzJiNzc2NTgtMDQxMi00YmQyLThmYjAtNjA0NWJlYWI1NGIwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ2OTgyNTM5LCJleHAiOjE2NDcwNjg5MzksImlkIjoyNjh9.PMT-PiFt0YYwtCDAl1UnZt_iDDRqpz75wsWzWrFg15I",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"company_id\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/office/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"office",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/office/<id>/assign/<id>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/office/7/assign/277",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"office",
+						"7",
+						"assign",
+						"277"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/my_office/",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NTYwNDA5NSwianRpIjoiNDU4YTdiMDUtZWI4Ni00NzU5LWFjNTEtMjQwYTE2MmQzMzc4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ1NjA0MDk1LCJleHAiOjE2NDU2OTA0OTUsImlkIjoxMH0.Iz6T6DpHYhNF8150CzYy_pmMOe2DBNqKP7QiGb67ToY",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/my_office/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"my_office",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/vehicles/",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"license_plate\": \"T979\",\n    \"name\": \"BMW\",\n    \"model\": \"X1\",\n    \"year_of_manufacture\": 2012,\n    \"office_id\": 7,\n    \"driver_id\": 277\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/vehicle/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"vehicle",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/vehicles/?driver_id={}&office_id={}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzE1MzA0OCwianRpIjoiMGYzZjQ1YWItMjJjYi00MTE3LTllNWQtODVkMjBmMzMxMmZiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MTUzMDQ4LCJleHAiOjE2NDcyMzk0NDgsImlkIjoyNzV9.Fugwwcl6_VJ5cK_Oz3ltfj9Cz0Znn9_lXGGY_jfGouY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"license_plate\": \"EA413\",\n    \"model\": \"BMW\",\n    \"name\": \"7\",\n    \"year_of_manufacture\": \"2000\",\n    \"office_id\": 6,\n    \"driver_id\": 8\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/vehicle/?driver_id=12&office_id=26",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"vehicle",
+						""
+					],
+					"query": [
+						{
+							"key": "driver_id",
+							"value": "12"
+						},
+						{
+							"key": "office_id",
+							"value": "26"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/vehicles/<id>",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzI0NTQ5MiwianRpIjoiNjc5ODc3NmItNTMwOS00MjEzLTliMDYtMDM5YjMzM2MxNzBlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MjQ1NDkyLCJleHAiOjE2NDczMzE4OTIsImlkIjoyNzV9.MCbPUqf8JBvPD-GBWPTx1NmY50w0lax4TB5xqRsxykY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"license_plate\": \"EA413\",\n    \"model\": \"BMW\",\n    \"name\": \"7\",\n    \"year_of_manufacture\": \"2000\",\n    \"office_id\": 6,\n    \"driver_id\": 8\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/vehicle/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"vehicle",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/vehicles/<id>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NzI0NTQ5MiwianRpIjoiNjc5ODc3NmItNTMwOS00MjEzLTliMDYtMDM5YjMzM2MxNzBlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImVsb25AYWRtaW4uY29tIiwibmJmIjoxNjQ3MjQ1NDkyLCJleHAiOjE2NDczMzE4OTIsImlkIjoyNzV9.MCbPUqf8JBvPD-GBWPTx1NmY50w0lax4TB5xqRsxykY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"license_plate\": \"T700\",\n    \"model\": \"Tesla\",\n    \"name\": \"S\",\n    \"year_of_manufacture\": \"2021\",\n    \"office_id\": 7,\n    \"driver_id\": 276\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/vehicle/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"vehicle",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/api/vehicles/<id>",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NTUzNjQyOSwianRpIjoiMTI2NGM3NGItN2RiMC00YjE5LWI3MDItMzQ3N2I4MGJkN2NiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluQGFkbWluLmNvbSIsIm5iZiI6MTY0NTUzNjQyOSwiZXhwIjoxNjQ1NjIyODI5LCJpZCI6M30.JG_04pmyR7AXMVR2fbDsvtVITWY5AzIG8FegWs85ChE",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"license_plate\": \"EA413\",\n    \"model\": \"BMW\",\n    \"name\": \"7\",\n    \"year_of_manufacture\": \"2000\",\n    \"office_id\": 6,\n    \"driver_id\": 8\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/vehicle/9",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"vehicle",
+						"9"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

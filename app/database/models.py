@@ -1,14 +1,8 @@
 from passlib.hash import pbkdf2_sha256 as sha256
-from sqlalchemy.orm import relationship, backref, declarative_base
+from sqlalchemy.orm import relationship, backref
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, abort
-from flask import jsonify, request, Response
-from config import Config, TestingConfig
-
-# SQLALCHEMY_BINDS = {
-#     'main_db': Config.SQLALCHEMY_DATABASE_URI,
-#     'test_db': TestingConfig.SQLALCHEMY_DATABASE_URI
-# }
+from flask_restful import abort
+from flask import Response
 
 db = SQLAlchemy()
 
@@ -20,21 +14,23 @@ drivers_association_table = db.Table(
 
 class User(db.Model):
     """User model class"""
-    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     first_name = db.Column(db.String)
     last_name = db.Column(db.String)
-    is_stafff = db.Column(db.Boolean, default=True)
-    chief_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True, ondelete='CASCADE'), nullable=True)
+    chief_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='SET NULL'), nullable=True)
     company = db.relationship('Company', back_populates="members", foreign_keys=[company_id], passive_deletes=True)
-    office_id = db.Column(db.Integer, db.ForeignKey('office.id', ondelete='SET NULL', use_alter=True), nullable=True)
-    office = db.relationship('Office', back_populates="worker", foreign_keys=[office_id], post_update=True, passive_deletes=True)
-    vehicle = db.relationship('Vehicle', secondary=drivers_association_table, back_populates='driver', post_update=True)
+    office_id = db.Column(db.Integer, db.ForeignKey('office.id', ondelete='SET NULL'), nullable=True)
+    office = db.relationship(
+        'Office', back_populates="worker", foreign_keys=[office_id], post_update=True, passive_deletes=True
+    )
+    vehicle = db.relationship(
+        'Vehicle', secondary=drivers_association_table, back_populates='driver', post_update=True
+    )
 
-    def __init__(self, email, password, first_name, last_name, chief_id, company_id, office_id, is_stafff):
+    def __init__(self, email, password, first_name, last_name, chief_id, company_id, office_id):
         self.email = email
         self.password = password
         self.first_name = first_name
@@ -42,7 +38,6 @@ class User(db.Model):
         self.chief_id = chief_id
         self.company_id = company_id
         self.office_id = office_id
-        self.is_stafff = is_stafff
 
     """Save user details to DataBase"""
 
@@ -65,9 +60,8 @@ class User(db.Model):
     def find_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
 
-    # @classmethod
-    # def is_staff(cls):
-    #     return bool(cls.is_stafff)
+    def is_staff(self):
+        return bool(self.chief_id)
 
     """generate hash from password using sha256 encryption"""
     @staticmethod
@@ -84,13 +78,18 @@ class User(db.Model):
 
 
 class Company(db.Model):
-    __tablename__ = 'company'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     address = db.Column(db.String)
-    members = db.relationship('User', foreign_keys=[User.company_id], back_populates='company', post_update=True, passive_deletes='all')
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE', use_alter=True), nullable=True, unique=True)
-    owner = db.relationship('User', foreign_keys=[owner_id], backref=backref('company_owner', uselist=False), passive_deletes='all')
+    members = db.relationship(
+        'User', foreign_keys=[User.company_id], back_populates='company', post_update=True, passive_deletes=True
+    )
+    owner_id = db.Column(
+        db.Integer, db.ForeignKey('user.id', ondelete='CASCADE', use_alter=True), nullable=True, unique=True
+    )
+    owner = db.relationship(
+        'User', foreign_keys=[owner_id], backref=backref('company_owner', uselist=False), passive_deletes=True
+    )
     offices = db.relationship('Office', back_populates='company', post_update=True)
     vehicles = db.relationship('Vehicle',  back_populates='company', post_update=True)
 
@@ -124,7 +123,6 @@ class Company(db.Model):
 
 class RevokedTokenModel(db.Model):
     """Revoked Token Model Class"""
-    __tablename__ = 'revoked_tokens'
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(120))
 
@@ -142,16 +140,17 @@ class RevokedTokenModel(db.Model):
 
 class Office(db.Model):
     """Office model"""
-    __tablename__ = 'office'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     address = db.Column(db.String)
     country = db.Column(db.String)
     city = db.Column(db.String)
     region = db.Column(db.String)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id', use_alter=True, ondelete="CASCADE"), nullable=True)
-    company = relationship('Company', foreign_keys=[company_id], back_populates='offices', cascade="all, delete", post_update=True)
-    worker = relationship("User", back_populates="office",  post_update=True, passive_deletes='all')
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete="CASCADE"), nullable=True)
+    company = relationship(
+        'Company', foreign_keys=[company_id], back_populates='offices', cascade="all, delete", post_update=True
+    )
+    worker = relationship("User", back_populates="office",  post_update=True, passive_deletes=True)
     vehicles = relationship('Vehicle', back_populates='office')
 
     @classmethod
@@ -186,13 +185,12 @@ class Office(db.Model):
 
 class Vehicle(db.Model):
     """Office model"""
-    __tablename__ = 'vehicle'
     id = db.Column(db.Integer, primary_key=True)
     license_plate = db.Column(db.String, nullable=False)
     name = db.Column(db.String)
     model = db.Column(db.String)
     year_of_manufacture = db.Column(db.Integer)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='SET NULL'))
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='SET NULL'), nullable=True)
     company = relationship('Company', back_populates='vehicles')
     office_id = db.Column(db.Integer, db.ForeignKey('office.id', ondelete='SET NULL'), nullable=True)
     office = relationship('Office', back_populates='vehicles')

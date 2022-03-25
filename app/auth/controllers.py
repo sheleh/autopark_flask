@@ -1,4 +1,3 @@
-import pdb
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, abort
 from flask import Response
@@ -13,9 +12,8 @@ class UserLogin(Resource):
         data = validate_request_data(user_login_form_schema)
         email = data.get('email')
         current_user = User.find_by_email(email)
-        # TODO: need to change this condition
         if not current_user:
-            return {'message': f'User {email} does not exist'}
+            return {'message': f'User {email} does not exist'}, 401
         if User.verify_hash(data.get('password'), current_user.password):
             additional_claims = {"id": current_user.id}
             access_token = create_access_token(identity=email, additional_claims=additional_claims)
@@ -29,39 +27,25 @@ class UserLogin(Resource):
             return {'message': "Wrong Credentials"}, 403
 
 
-class UserLogoutAccess(Resource):
-    @jwt_required()
+class UserLogout(Resource):
+    """User logout API by revoking refresh token"""
+    @jwt_required(refresh=True)
     def post(self):
         jti = get_jwt()['jti']
         try:
-            revoked_token = RevokedTokenModel(jti=jti)
-            revoked_token.add()
-            return {'message': 'Access token has been revoked'}
-        except Exception as e:
-            abort(Response(f'Something went wrong! {e}', 400))
-
-
-class UserLogoutRefresh(Resource):
-    """User Logout Refresh API"""
-
-    @jwt_required
-    def post(self):
-        jti = get_jwt()['jti']
-        try:
-            revoked_token = RevokedTokenModel(jti=jti)
-            revoked_token.add()
-            pdb.set_trace()
-            return {'message': 'Refresh token has been revoked'}, 403
+            revoked_refresh_token = RevokedTokenModel(jti=jti)
+            revoked_refresh_token.add()
+            return {'message': 'Refresh token has been revoked, User has been logged out'}
         except Exception as e:
             abort(Response(f'Something went wrong! {e}', 400))
 
 
 class TokenRefresh(Resource):
     """Token Refresh API"""
-
-    @jwt_required
+    @jwt_required(refresh=True)
     def post(self):
-        # Generating new access token
         current_user = get_jwt_identity()
-        access_token = create_access_token(identity=current_user)
+        current_user_obj = User.find_by_email(current_user)
+        additional_claims = {"id": current_user_obj.id}
+        access_token = create_access_token(identity=current_user_obj.email, additional_claims=additional_claims)
         return {'access_token': access_token}

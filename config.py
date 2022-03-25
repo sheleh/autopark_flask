@@ -36,10 +36,11 @@ class DevelopmentConfig(Config):
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
 
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     SECRET_KEY = 'Testsecretkey'
-

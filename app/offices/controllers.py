@@ -22,27 +22,26 @@ class OfficeView(MethodView):
         self.current_user = get_current_user()
 
     @jwt_required()
-    def get(self, office_id):
-        if self.current_user.is_stafff:
+    def get(self, office_id=None):
+        if self.current_user.is_staff():
             if office_id:
                 return {'message': 'Administrator permissions required'}, 403
             offices = self.current_user.company.offices
-            result = jsonify({'offices': offices_list_form_schema.dump(offices)})
-        else:
-            if office_id:
-                office = Office.query.filter_by(
-                    id=office_id).join(Office.company, aliased=True).filter_by(
-                    owner_id=self.current_user.id).first_or_404()
-                result = office_get_form_schema.dump(office)
-            else:
-                args = request.args
-                filters = ['name', 'address', 'country', 'city', 'region']
-                query_filters = url_filter(filters, args, Office)
-                offices = Office.query.join(
-                    Office.company, aliased=True).filter_by(
-                    owner_id=self.current_user.id).filter(and_(True, *query_filters)).all()
-                result = jsonify({'offices': offices_with_company_info_list_form_schema.dump(offices)})
-        return result
+            return jsonify({'offices': offices_list_form_schema.dump(offices)})
+
+        if office_id:
+            office = Office.query.filter_by(
+                id=office_id).join(Office.company, aliased=True).filter_by(
+                owner_id=self.current_user.id).first_or_404()
+            return office_get_form_schema.dump(office)
+
+        args = request.args
+        filters = ['name', 'address', 'country', 'city', 'region']
+        query_filters = url_filter(filters, args, Office)
+        offices = Office.query.join(
+            Office.company, aliased=True).filter_by(
+            owner_id=self.current_user.id).filter(and_(True, *query_filters)).all()
+        return jsonify({'offices': offices_with_company_info_list_form_schema.dump(offices)})
 
     @admin_required()
     def post(self, **kwargs):
@@ -60,7 +59,7 @@ class OfficeView(MethodView):
             company_id=company.id
         )
         new_office.save_to_db()
-        return {'message': f'Office with name {new_office} was created'}
+        return {'message': f'Office with name {new_office} was created'}, 201
 
     @admin_required()
     def put(self, office_id):
@@ -70,7 +69,7 @@ class OfficeView(MethodView):
         for key, value in data.items():
             setattr(office, key, value)
         office.save_to_db()
-        return {'message': f'Office {office.name} has been updated'}
+        return {'message': f'Office {office.name} has been updated'}, 200
 
     @admin_required()
     def delete(self, office_id):
@@ -78,29 +77,30 @@ class OfficeView(MethodView):
             id=office_id).join(Office.company, aliased=True).filter_by(owner_id=self.current_user.id).first_or_404()
 
         office.delete_from_db()
-        return {'message': 'Office has been deleted'}
+        return {'message': 'Office has been deleted'}, 200
 
 
 class UsersAndOfficeRelation(MethodView):
-    @jwt_required()
-    def __init__(self):
-        self.current_user = get_current_user()
-
     @admin_required()
     def put(self, office_id, user_id):
+        current_user = get_current_user()
         office = Office.query.filter_by(
-            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=self.current_user.id).first_or_404()
-        employee = User.query.filter_by(id=user_id, chief_id=self.current_user.id).first_or_404()
+            id=office_id).join(Office.company, aliased=True).filter_by(owner_id=current_user.id).first_or_404()
+        employee = User.query.filter_by(id=user_id, chief_id=current_user.id).first_or_404()
         employee.office_id = office_id
         office.save_to_db()
-        return jsonify(message=f'User {employee.email} has been assigned to {office.name}')
+        return {'message': f'User {employee.email} has been assigned to {office.name}'}, 200
 
+
+class MyOfficeView(MethodView):
+    @jwt_required()
     def get(self):
-        current_user_office = self.current_user.office
-        if not current_user_office:
-            return {'message': f'User {self.current_user} not assigned to any office'}
-        return office_get_form_schema.dump(current_user_office)
+        current_user = get_current_user()
+        if not current_user.office:
+            return {'message': f'User {current_user} not assigned to any office'}, 400
+        return office_get_form_schema.dump(current_user.office)
 
 
 users_and_offices_relation_view = UsersAndOfficeRelation.as_view('users_and_offices_relation_api')
 office_view = OfficeView.as_view('office_api')
+my_office_view = MyOfficeView.as_view('my_office_api')

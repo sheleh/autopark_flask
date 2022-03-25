@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#flask alembic upgrade head
-
 flask db init
 flask db stamp head
 flask db migrate

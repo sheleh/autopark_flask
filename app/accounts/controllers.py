@@ -1,6 +1,6 @@
 from flask import jsonify, request, Response
 from flask.views import MethodView
-from flask_restful import Resource, abort
+from flask_restful import abort
 from sqlalchemy import and_
 from app.utils import url_filter, validate_request_data
 from app.database.models import Company, User
@@ -32,7 +32,6 @@ class AdminRegistration(MethodView):
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
             password=User.generate_hash(data.get('password')),
-            is_stafff=False,
             company_id=None,
             office_id=None,
             chief_id=None,
@@ -54,10 +53,8 @@ class AdminUserView(MethodView):
         employees = User.query.filter_by(chief_id=self.current_user.id).filter(and_(True, *query_filters))
         if user_id:
             employee = employees.filter_by(id=user_id).first_or_404()
-            result = single_user_form_schema.dump(employee)
-        else:
-            result = jsonify({'users': users_form_schema.dump(employees)})
-        return result
+            return single_user_form_schema.dump(employee)
+        return jsonify({'users': users_form_schema.dump(employees)})
 
     @admin_required()
     def post(self, **kwargs):
@@ -65,12 +62,11 @@ class AdminUserView(MethodView):
         email = data.get('email')
         company = Company.query.filter_by(owner_id=self.current_user.id).first()
         if User.find_by_email(email):
-            abort(Response({ f'User with {email} email already exists'}, 400))
+            abort(Response({f'User with {email} email already exists'}, 400))
         new_user = User(
             email=email,
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
-            is_stafff=True,
             chief_id=self.current_user.id,
             password=User.generate_hash(data.get('password')),
             company_id=company.id if company else None,
@@ -95,13 +91,13 @@ class AdminUserView(MethodView):
         for key, value in data.items():
             setattr(employee, key, value)
         employee.save_to_db()
-        return {'message': 'User has been updated'}
+        return {'message': 'User has been updated'}, 200
 
     @admin_required()
     def delete(self, user_id):
         employee = User.query.filter_by(id=user_id, chief_id=self.current_user.id).first_or_404()
         employee.delete_from_db()
-        return {'message': 'User has been deleted'}
+        return {'message': 'User has been deleted'}, 200
 
 
 class ProfileView(MethodView):
@@ -110,8 +106,7 @@ class ProfileView(MethodView):
         self.current_user = get_current_user()
 
     def get(self):
-        result = user_profile_form_schema.dump(self.current_user)
-        return result
+        return user_profile_form_schema.dump(self.current_user)
 
     def put(self):
         data = validate_request_data(user_update_profile_form_schema)
@@ -120,7 +115,7 @@ class ProfileView(MethodView):
         for key, value in data.items():
             setattr(self.current_user, key, value)
         self.current_user.save_to_db()
-        return {'message': f'User {self.current_user} has been updated'}
+        return {'message': f'User {self.current_user} has been updated'}, 200
 
 
 profile_view = ProfileView.as_view('profile_api')

@@ -31,33 +31,33 @@ class AdminVehicleView(MethodView):
         if vehicle_id:
             vehicle = Vehicle.query.join(Company, aliased=True).filter(Vehicle.id == vehicle_id).filter(
                 Company.owner_id == self.current_user.id).first_or_404()
-            result = vehicle_retrieve_form_schema.dump(vehicle)
+            return vehicle_retrieve_form_schema.dump(vehicle)
+
+        args = request.args
+        filters = ['office_id', 'driver_id']
+        checked_arg = {
+            key: value if key in filters and value.isdigit() else
+            abort(Response(f'Incorrect filter', 400)) for key, value in args.items()
+        }
+        args_office = checked_arg.get('office_id')
+        args_driver = checked_arg.get('driver_id')
+        if args_office and args_driver:
+            vehicles = Vehicle.query.filter_by(
+                office_id=args_office).join(Vehicle.driver).filter_by(
+                id=args_driver).join(Vehicle.company).filter_by(
+                owner_id=self.current_user.id).all()
+            result = jsonify({'vehicles': vehicle_list_form_schema.dump(vehicles)})
+        elif args_driver:
+            driver = User.query.filter_by(id=args_driver, chief_id=self.current_user.id).first_or_404()
+            result = jsonify({'vehicles': vehicle_list_form_schema.dump(driver.vehicle)})
+        elif args_office:
+            office = Office.query.filter_by(
+                id=args_office).join(Office.company, aliased=True).filter_by(
+                owner_id=self.current_user.id).first_or_404()
+            result = jsonify({'vehicles': vehicle_list_form_schema.dump(office.vehicles)})
         else:
-            args = request.args
-            filters = ['office_id', 'driver_id']
-            checked_arg = {
-                key: value if key in filters and value.isdigit() else
-                abort(Response(f'Incorrect filter', 400)) for key, value in args.items()
-            }
-            args_office = checked_arg.get('office_id')
-            args_driver = checked_arg.get('driver_id')
-            if args_office and args_driver:
-                vehicles = Vehicle.query.filter_by(
-                    office_id=args_office).join(Vehicle.driver).filter_by(
-                    id=args_driver).join(Vehicle.company).filter_by(
-                    owner_id=self.current_user.id).all()
-                result = jsonify({'vehicles': vehicle_list_form_schema.dump(vehicles)})
-            elif args_driver:
-                driver = User.query.filter_by(id=args_driver, chief_id=self.current_user.id).first_or_404()
-                result = jsonify({'vehicles': vehicle_list_form_schema.dump(driver.vehicle)})
-            elif args_office:
-                office = Office.query.filter_by(
-                    id=args_office).join(Office.company, aliased=True).filter_by(
-                    owner_id=self.current_user.id).first_or_404()
-                result = jsonify({'vehicles': vehicle_list_form_schema.dump(office.vehicles)})
-            else:
-                company = Company.query.filter_by(owner_id=self.current_user.id).first_or_404()
-                result = jsonify({'vehicles': vehicle_list_form_schema.dump(company.vehicles)})
+            company = Company.query.filter_by(owner_id=self.current_user.id).first_or_404()
+            result = jsonify({'vehicles': vehicle_list_form_schema.dump(company.vehicles)})
         return result
 
     def post(self, **kwargs):
@@ -108,7 +108,7 @@ class AdminVehicleView(MethodView):
         vehicle = Vehicle.query.join(Company, aliased=True).filter(Vehicle.id == vehicle_id).filter(
             Company.owner_id == self.current_user.id).first_or_404()
         vehicle.delete_from_db()
-        return {'message': f'Vehicle {vehicle.name} {vehicle.license_plate} has been deleted'}
+        return {'message': f'Vehicle {vehicle.name} {vehicle.license_plate} has been deleted'}, 200
 
 
 vehicle_view = AdminVehicleView.as_view('vehicle_view_api')

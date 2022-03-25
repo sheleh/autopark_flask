@@ -1,6 +1,3 @@
-
-run application  = python3 run.py or flask run
-
 # +++ 1 +++
 # Admin user registration
 POST {url}:5000/api/admin/registration/

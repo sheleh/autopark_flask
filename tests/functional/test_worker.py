@@ -13,7 +13,7 @@ def test_admin_can_create_worker(test_client, init_test_database, admin_token):
     assert worker.last_name == worker_data.get('last_name')
     assert worker.chief_id == admin_user.id
     assert worker.company_id == admin_user.company.id
-    assert worker.is_stafff is True
+    assert worker.is_staff() is True
 
 
 def test_admin_can_not_create_second_worker_with_same_email(test_client, init_test_database, admin_token):
@@ -33,7 +33,7 @@ def test_admin_can_create_second_worker(test_client, init_test_database, admin_t
     assert worker.last_name == worker_2_data.get('last_name')
     assert worker.chief_id == admin_user.id
     assert worker.company_id == admin_user.company.id
-    assert worker.is_stafff is True
+    assert worker.is_staff() is True
 
 
 def test_admin_can_view_list_of_workers(test_client, admin_token):

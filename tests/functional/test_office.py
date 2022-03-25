@@ -5,7 +5,7 @@ from tests.conftest import admin_user, worker_1_user, office_2_data, office_1_da
 
 def test_admin_can_create_office(test_client, init_test_database, admin_token):
     response = test_client.post('/api/offices/', headers=admin_token, json=office_1_data)
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json['message'] == f"Office with name {office_1_data['name']} was created"
     office = Office.query.filter_by(name=office_1_data['name']).first()
     assert office.name == office_1_data.get('name')
@@ -18,7 +18,7 @@ def test_admin_can_create_office(test_client, init_test_database, admin_token):
 
 def test_admin_can_create_second_office(test_client, init_test_database, admin_token):
     response = test_client.post('/api/offices/', headers=admin_token, json=office_2_data)
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json['message'] == f"Office with name {office_2_data['name']} was created"
     office = Office.query.filter_by(name=office_2_data['name']).first()
     assert office.name == office_2_data.get('name')
