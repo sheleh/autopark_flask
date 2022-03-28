@@ -105,30 +105,6 @@ def init_test_database():
     db.session.rollback()
     clear_db_data(db.session)
 
-    # clear_db_data(db.session)
-    # savepoint1 = db.session.begin_nested()
-    # engine = db.engine
-    # db.app = test_client
-    # meta = db.metadata
-    # test_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-    # #db.drop_all()
-    # clear_db_data(test_session)
-    # #db.session.begin()
-    # #db.create_all()
-    # test_session.add(admin_user)
-    # test_session.add(worker_1_user)
-    # test_session.commit()
-    # #db.session.flush()
-    # yield test_session
-    #
-    # test_session.close()
-    # test_session.remove()
-    # savepoint1.rollback()
-    # # db.session.remove()
-    # # db.session.close()
-    # #db.session.remove()
-    # clear_db_data(db.session)
-
 
 @pytest.fixture(scope='session')
 def test_client():

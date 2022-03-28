@@ -16,7 +16,7 @@ This repository contains the code for the application defined in the technical s
 
 
 Project documentation:
-* [Technical requirements](docs/)
+* [Technical requirements](docs/flask_training_task.pdf)
 * [Api Endpoints (Postman collection)](docs/autopark_flask_postman_collection.json)
 * [Api Endpoints Examples](docs/api_requests_examples.MD)
 
@@ -32,7 +32,6 @@ List any major frameworks/libraries used to bootstrap project.
 * [pytest](https://docs.pytest.org/en/6.2.x/index.html)
 * [Flask-JWT-Extended](https://flask-jwt-extended.readthedocs.io/en/stable/)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- GETTING STARTED -->
@@ -65,8 +64,6 @@ You should install following software first:
 
 3.Move .env configuration file to the project root
 
-
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ### Project resources
@@ -108,8 +105,6 @@ _Running tests on local machine_
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 
 <!-- CONTACT -->
 ## Contact
@@ -118,5 +113,4 @@ Dmytro Shelekhov  - shelex87@gmail.com
 
 Project Link: [https://github.com/sheleh/autopark_flask](https://github.com/sheleh/autopark_flask)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
